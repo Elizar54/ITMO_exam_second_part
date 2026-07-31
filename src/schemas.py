@@ -93,6 +93,7 @@ class PrivacyResult(StrictModel):
 class RiskResult(StrictModel):
     level: RiskLevel
     reasons: list[str] = Field(default_factory=list)
+    matched_rules: list[str] = Field(default_factory=list)
 
 
 class ScopeResult(StrictModel):
