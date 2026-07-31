@@ -148,9 +148,25 @@ class DecisionRecord(StrictModel):
     scope_status: ScopeStatus
     fallback_reason: FallbackReason | None = None
     redacted_text: str | None = Field(default=None, max_length=5000)
+    pii_detected: bool = False
+    pii_types: list[str] = Field(default_factory=list)
+    scope_positive_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    scope_negative_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    scope_margin: float | None = Field(default=None, ge=0.0, le=1.0)
+    matched_risk_rules: list[str] = Field(default_factory=list)
+    retrieval_top_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    retrieval_margin: float | None = Field(default=None, ge=0.0, le=1.0)
+    retrieved_document_ids: list[str] = Field(default_factory=list)
     answer: str | None = Field(default=None, max_length=3000)
     citations: list[str] = Field(default_factory=list)
+    template_id: str | None = None
+    llm_used: bool = False
     llm_attempts: int = Field(default=0, ge=0)
+    llm_latency_seconds: float | None = Field(default=None, ge=0.0)
+    token_usage: dict[str, int] = Field(default_factory=dict)
+    estimated_cost_usd: float = Field(default=0.0, ge=0.0)
+    processing_latency_seconds: float | None = Field(default=None, ge=0.0)
+    resolved_without_operator: bool | None = None
     degradation_events: list[str] = Field(default_factory=list)
     audit_storage: AuditStorage
     created_at: datetime = Field(default_factory=utc_now)

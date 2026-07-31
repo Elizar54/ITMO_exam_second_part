@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 from src.answer_validator import AnswerValidator
@@ -30,6 +31,7 @@ from src.schemas import (
     DecisionRecord,
     FallbackReason,
     LLMAnswer,
+    PrivacyResult,
     RetrievalResult,
     RiskLevel,
     RiskResult,
@@ -65,8 +67,12 @@ class SupportPipeline:
         self.config = config
 
     def process(self, ticket: TicketInput) -> DecisionRecord:
+        started = time.perf_counter()
         try:
-            return self._process(ticket)
+            result = self._process(ticket)
+            return result.model_copy(
+                update={"processing_latency_seconds": time.perf_counter() - started}
+            )
         except Exception as exc:
             logger.exception("Unexpected internal error while processing ticket_id=%s", ticket.ticket_id)
             fallback = DecisionRecord(
@@ -81,7 +87,10 @@ class SupportPipeline:
                 audit_storage=AuditStorage.UNAVAILABLE,
                 degradation_events=["unexpected_internal_error"],
             )
-            return self._save_or_block(fallback)
+            saved = self._save_or_block(fallback)
+            return saved.model_copy(
+                update={"processing_latency_seconds": time.perf_counter() - started}
+            )
 
     def _process(self, ticket: TicketInput) -> DecisionRecord:
         privacy = self.pii_service.mask(ticket.text)
@@ -97,6 +106,7 @@ class SupportPipeline:
                     response_source=ResponseSource.SYSTEM,
                     fallback_reason=FallbackReason.OUT_OF_SCOPE,
                     redacted_text=privacy.redacted_text,
+                    privacy=privacy,
                     answer=out_of_scope_message(),
                 )
             )
@@ -112,6 +122,7 @@ class SupportPipeline:
                     response_source=ResponseSource.OPERATOR,
                     fallback_reason=FallbackReason.HIGH_RISK,
                     redacted_text=privacy.redacted_text,
+                    privacy=privacy,
                     answer=operator_review_message(),
                 )
             )
@@ -123,6 +134,8 @@ class SupportPipeline:
                 scope=scope,
                 risk=risk,
                 redacted_text=privacy.redacted_text,
+                privacy=privacy,
+                retrieval=retrieval,
                 fallback_reason=(
                     FallbackReason.RETRIEVAL_UNAVAILABLE
                     if retrieval.unavailable
@@ -130,7 +143,7 @@ class SupportPipeline:
                 ),
             )
 
-        return self._llm_path(ticket, scope, risk, privacy.redacted_text, retrieval)
+        return self._llm_path(ticket, scope, risk, privacy.redacted_text, privacy, retrieval)
 
     def _retrieve(self, redacted_text: str) -> RetrievalResult:
         try:
@@ -144,16 +157,23 @@ class SupportPipeline:
         scope: ScopeResult,
         risk: RiskResult,
         redacted_text: str,
+        privacy: PrivacyResult,
         retrieval: RetrievalResult,
     ) -> DecisionRecord:
         try:
             first_response = self.llm_client.generate(redacted_text, retrieval.chunks)
         except LLMTimeoutError:
-            return self._template_fallback(ticket, scope, risk, redacted_text, FallbackReason.LLM_TIMEOUT)
+            return self._template_fallback(
+                ticket, scope, risk, redacted_text, privacy, retrieval, FallbackReason.LLM_TIMEOUT
+            )
         except LLMRateLimitError:
-            return self._template_fallback(ticket, scope, risk, redacted_text, FallbackReason.LLM_RATE_LIMIT)
+            return self._template_fallback(
+                ticket, scope, risk, redacted_text, privacy, retrieval, FallbackReason.LLM_RATE_LIMIT
+            )
         except LLMUnavailableError:
-            return self._template_fallback(ticket, scope, risk, redacted_text, FallbackReason.LLM_UNAVAILABLE)
+            return self._template_fallback(
+                ticket, scope, risk, redacted_text, privacy, retrieval, FallbackReason.LLM_UNAVAILABLE
+            )
 
         first_validation = self.answer_validator.validate(
             first_response.raw_content,
@@ -170,9 +190,15 @@ class SupportPipeline:
                     action=DecisionAction.AUTO_REPLY,
                     response_source=ResponseSource.RAG_LLM,
                     redacted_text=redacted_text,
+                    privacy=privacy,
+                    retrieval=retrieval,
                     answer=answer.answer,
                     citations=answer.citations,
+                    llm_used=True,
                     llm_attempts=1,
+                    llm_latency_seconds=first_response.latency_seconds,
+                    token_usage=first_response.token_usage,
+                    estimated_cost_usd=first_response.estimated_cost_usd,
                 )
             )
 
@@ -192,7 +218,10 @@ class SupportPipeline:
                     response_source=ResponseSource.OPERATOR,
                     fallback_reason=FallbackReason.LLM_RETRY_UNAVAILABLE,
                     redacted_text=redacted_text,
+                    privacy=privacy,
+                    retrieval=retrieval,
                     answer=operator_review_message(),
+                    llm_used=True,
                     llm_attempts=2,
                     degradation_events=["first_llm_response_invalid"],
                 )
@@ -213,9 +242,20 @@ class SupportPipeline:
                     action=DecisionAction.AUTO_REPLY,
                     response_source=ResponseSource.RAG_LLM,
                     redacted_text=redacted_text,
+                    privacy=privacy,
+                    retrieval=retrieval,
                     answer=answer.answer,
                     citations=answer.citations,
+                    llm_used=True,
                     llm_attempts=2,
+                    llm_latency_seconds=first_response.latency_seconds
+                    + second_response.latency_seconds,
+                    token_usage=self._combine_usage(
+                        first_response.token_usage,
+                        second_response.token_usage,
+                    ),
+                    estimated_cost_usd=first_response.estimated_cost_usd
+                    + second_response.estimated_cost_usd,
                     degradation_events=["first_llm_response_invalid"],
                 )
             )
@@ -229,8 +269,19 @@ class SupportPipeline:
                 response_source=ResponseSource.OPERATOR,
                 fallback_reason=FallbackReason.LLM_VALIDATION_FAILED_TWICE,
                 redacted_text=redacted_text,
+                privacy=privacy,
+                retrieval=retrieval,
                 answer=operator_review_message(),
+                llm_used=True,
                 llm_attempts=2,
+                llm_latency_seconds=first_response.latency_seconds
+                + second_response.latency_seconds,
+                token_usage=self._combine_usage(
+                    first_response.token_usage,
+                    second_response.token_usage,
+                ),
+                estimated_cost_usd=first_response.estimated_cost_usd
+                + second_response.estimated_cost_usd,
                 degradation_events=["first_llm_response_invalid", "second_llm_response_invalid"],
             )
         )
@@ -241,6 +292,8 @@ class SupportPipeline:
         scope: ScopeResult,
         risk: RiskResult,
         redacted_text: str,
+        privacy: PrivacyResult,
+        retrieval: RetrievalResult,
         fallback_reason: FallbackReason,
     ) -> DecisionRecord:
         match = self.template_retriever.search(redacted_text)
@@ -254,6 +307,9 @@ class SupportPipeline:
                     response_source=ResponseSource.TEMPLATE,
                     fallback_reason=fallback_reason,
                     redacted_text=redacted_text,
+                    privacy=privacy,
+                    retrieval=retrieval,
+                    template_match=match,
                     answer=match.answer if match else None,
                 )
             )
@@ -268,6 +324,9 @@ class SupportPipeline:
                     response_source=ResponseSource.SYSTEM,
                     fallback_reason=FallbackReason.SCOPE_UNCERTAIN,
                     redacted_text=redacted_text,
+                    privacy=privacy,
+                    retrieval=retrieval,
+                    template_match=match,
                     answer=clarification_message(),
                 )
             )
@@ -281,6 +340,9 @@ class SupportPipeline:
                 response_source=ResponseSource.OPERATOR,
                 fallback_reason=self._template_failure_reason(match),
                 redacted_text=redacted_text,
+                privacy=privacy,
+                retrieval=retrieval,
+                template_match=match,
                 answer=operator_review_message(),
             )
         )
@@ -301,6 +363,11 @@ class SupportPipeline:
         if match.score < self.config.template_score_threshold:
             return FallbackReason.TEMPLATE_LOW_SCORE
         return FallbackReason.TEMPLATE_AMBIGUOUS
+
+    @staticmethod
+    def _combine_usage(first: dict[str, int], second: dict[str, int]) -> dict[str, int]:
+        keys = set(first) | set(second)
+        return {key: first.get(key, 0) + second.get(key, 0) for key in keys}
 
     def _save_or_block(self, record: DecisionRecord) -> DecisionRecord:
         try:
@@ -329,10 +396,17 @@ class SupportPipeline:
         action: DecisionAction,
         response_source: ResponseSource,
         redacted_text: str | None = None,
+        privacy: PrivacyResult | None = None,
+        retrieval: RetrievalResult | None = None,
+        template_match: TemplateMatch | None = None,
         fallback_reason: FallbackReason | None = None,
         answer: str | None = None,
         citations: list[str] | None = None,
+        llm_used: bool = False,
         llm_attempts: int = 0,
+        llm_latency_seconds: float | None = None,
+        token_usage: dict[str, int] | None = None,
+        estimated_cost_usd: float = 0.0,
         degradation_events: list[str] | None = None,
     ) -> DecisionRecord:
         return DecisionRecord(
@@ -344,9 +418,32 @@ class SupportPipeline:
             scope_status=scope.status,
             fallback_reason=fallback_reason,
             redacted_text=redacted_text,
+            pii_detected=privacy.has_pii if privacy else False,
+            pii_types=self._pii_types(privacy.detected_entities) if privacy else [],
+            scope_positive_score=scope.positive_score,
+            scope_negative_score=scope.negative_score,
+            scope_margin=scope.margin,
+            matched_risk_rules=risk.matched_rules,
+            retrieval_top_score=retrieval.top_score if retrieval else None,
+            retrieval_margin=retrieval.margin if retrieval else None,
+            retrieved_document_ids=[chunk.chunk_id for chunk in retrieval.chunks] if retrieval else [],
             answer=answer,
             citations=citations or [],
+            template_id=template_match.template_id if template_match else None,
+            llm_used=llm_used,
             llm_attempts=llm_attempts,
+            llm_latency_seconds=llm_latency_seconds,
+            token_usage=token_usage or {},
+            estimated_cost_usd=estimated_cost_usd,
             degradation_events=degradation_events or [],
             audit_storage=AuditStorage.UNAVAILABLE,
         )
+
+    @staticmethod
+    def _pii_types(detected_entities: list[str]) -> list[str]:
+        types: list[str] = []
+        for entity in detected_entities:
+            entity_type = entity.strip("[]").rsplit("_", 1)[0]
+            if entity_type not in types:
+                types.append(entity_type)
+        return types
