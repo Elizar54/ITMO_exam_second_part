@@ -138,6 +138,7 @@ class ValidationResult(StrictModel):
 
 
 class DecisionRecord(StrictModel):
+    event_id: UUID = Field(default_factory=uuid4)
     decision_id: UUID = Field(default_factory=uuid4)
     ticket_id: UUID
     session_id: str = Field(min_length=1)
@@ -149,5 +150,7 @@ class DecisionRecord(StrictModel):
     redacted_text: str | None = Field(default=None, max_length=5000)
     answer: str | None = Field(default=None, max_length=3000)
     citations: list[str] = Field(default_factory=list)
+    llm_attempts: int = Field(default=0, ge=0)
+    degradation_events: list[str] = Field(default_factory=list)
     audit_storage: AuditStorage
     created_at: datetime = Field(default_factory=utc_now)
