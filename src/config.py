@@ -10,9 +10,13 @@ class Settings(BaseSettings):
     """Centralized application configuration."""
 
     openrouter_api_key: str = ""
+    openrouter_endpoint: str = "https://openrouter.ai/api/v1/chat/completions"
     openrouter_model: str = ""
     openrouter_timeout_seconds: int = Field(default=15, ge=1)
     openrouter_max_tokens: int = Field(default=500, ge=1)
+    openrouter_temperature: float = Field(default=0.0, ge=0.0, le=1.0)
+    openrouter_prompt_cost_per_1k: float = Field(default=0.0, ge=0.0)
+    openrouter_completion_cost_per_1k: float = Field(default=0.0, ge=0.0)
 
     retrieval_top_k: int = Field(default=3, ge=1)
     retrieval_score_threshold: float = Field(default=0.60, ge=0.0, le=1.0)
