@@ -1,0 +1,74 @@
+[
+  {
+    "template_id": "tpl-password-reset",
+    "title": "Восстановление пароля",
+    "examples": ["не могу восстановить пароль", "забыл пароль", "как сбросить пароль"],
+    "answer": "Откройте экран входа, нажмите восстановление пароля и перейдите по ссылке из письма.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-reset-email-missing",
+    "title": "Письмо не приходит",
+    "examples": ["не приходит письмо восстановления", "нет письма для сброса пароля"],
+    "answer": "Проверьте папку спам и правильность email, затем повторите запрос через несколько минут.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-change-email",
+    "title": "Изменение email",
+    "examples": ["как поменять email", "изменить почту в профиле"],
+    "answer": "Email меняется в настройках профиля после подтверждения нового адреса.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-notifications",
+    "title": "Уведомления",
+    "examples": ["отключить уведомления", "не хочу получать push"],
+    "answer": "Откройте настройки уведомлений и отключите нужные каналы.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-cancel-subscription",
+    "title": "Отмена подписки",
+    "examples": ["отменить подписку", "как выключить продление"],
+    "answer": "Подписку можно отменить в разделе оплаты. Доступ сохранится до конца оплаченного периода.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-app-error",
+    "title": "Ошибка приложения",
+    "examples": ["приложение выдает ошибку", "ничего не работает в приложении"],
+    "answer": "Обновите приложение и перезапустите устройство. Если ошибка повторится, передайте оператору версию приложения.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-operator",
+    "title": "Связь с оператором",
+    "examples": ["нужен оператор", "свяжите со специалистом"],
+    "answer": "Передам обращение оператору для проверки.",
+    "auto_reply_allowed": false,
+    "risk": "low",
+    "is_active": true
+  },
+  {
+    "template_id": "tpl-old-template",
+    "title": "Старый шаблон",
+    "examples": ["старая форма входа"],
+    "answer": "Устаревший ответ.",
+    "auto_reply_allowed": true,
+    "risk": "low",
+    "is_active": false
+  }
+]

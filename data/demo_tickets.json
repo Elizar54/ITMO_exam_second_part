@@ -1,0 +1,26 @@
+[
+  {
+    "scenario": "happy_path_with_email",
+    "text": "Не могу восстановить пароль, письмо не приходит на user@example.com"
+  },
+  {
+    "scenario": "high_risk",
+    "text": "Кажется, был чужой вход и украли аккаунт"
+  },
+  {
+    "scenario": "llm_timeout",
+    "text": "Как отменить подписку?"
+  },
+  {
+    "scenario": "unknown_error",
+    "text": "Приложение показывает неизвестную ошибку"
+  },
+  {
+    "scenario": "out_of_scope",
+    "text": "Какая сегодня погода?"
+  },
+  {
+    "scenario": "uncertain_request",
+    "text": "У меня ничего не работает"
+  }
+]

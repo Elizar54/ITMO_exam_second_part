@@ -1,0 +1,110 @@
+[
+  {
+    "document_id": "kb-password-reset",
+    "title": "Восстановление пароля",
+    "topic": "password",
+    "text": "Для восстановления пароля откройте экран входа, выберите восстановление пароля и следуйте ссылке из письма.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-reset-email-missing",
+    "title": "Письмо восстановления не приходит",
+    "topic": "password",
+    "text": "Если письмо восстановления не приходит, проверьте спам, правильность email и повторите запрос через несколько минут.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-change-email",
+    "title": "Изменение email",
+    "topic": "profile",
+    "text": "Email можно изменить в настройках профиля после подтверждения нового адреса.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-change-phone",
+    "title": "Изменение телефона",
+    "topic": "profile",
+    "text": "Телефон меняется в настройках профиля. Для подтверждения потребуется код из SMS.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-disable-notifications",
+    "title": "Отключение уведомлений",
+    "topic": "settings",
+    "text": "Уведомления можно отключить в разделе настроек уведомлений для email, push и SMS.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-cancel-subscription",
+    "title": "Отмена подписки",
+    "topic": "billing",
+    "text": "Подписку можно отменить в разделе оплаты. Доступ сохранится до конца оплаченного периода.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-service-status",
+    "title": "Статус сервиса",
+    "topic": "status",
+    "text": "Статус сервиса отображается на странице состояния. При сбоях обновления публикуются там же.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-app-error",
+    "title": "Ошибка приложения",
+    "topic": "app",
+    "text": "При ошибке приложения обновите его, перезапустите устройство и отправьте номер версии оператору, если проблема повторится.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-clear-cache",
+    "title": "Очистка кеша",
+    "topic": "app",
+    "text": "Очистка кеша доступна в настройках приложения и помогает при устаревших данных или ошибках загрузки.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-regular-payment-status",
+    "title": "Статус обычного платежа",
+    "topic": "billing",
+    "text": "Статус обычного платежа можно проверить в истории платежей. Обновление может занять несколько минут.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-contact-operator",
+    "title": "Связь с оператором",
+    "topic": "operator",
+    "text": "Если вопрос требует проверки данных аккаунта, оставьте обращение оператору с безопасным описанием проблемы.",
+    "auto_reply_allowed": false,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-old-login-flow",
+    "title": "Старый вход",
+    "topic": "login",
+    "text": "Устаревшая инструкция входа через старую форму.",
+    "auto_reply_allowed": false,
+    "version": "0.1",
+    "is_active": false
+  }
+]
