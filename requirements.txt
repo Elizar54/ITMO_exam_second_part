@@ -1,0 +1,8 @@
+streamlit
+pydantic
+pydantic-settings
+python-dotenv
+pytest
+httpx
+chromadb
+sentence-transformers
