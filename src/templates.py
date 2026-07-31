@@ -7,7 +7,7 @@ from typing import Any
 
 from src.config import Settings, settings
 from src.schemas import RiskLevel
-from src.vector_store import iter_query_rows
+from src.vector_store import cosine_distance_to_similarity, iter_query_rows
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,7 @@ class TemplateRetriever:
             template_id = str(metadata.get("template_id", ""))
             if not template_id:
                 continue
-            score = max(0.0, min(1.0, 1.0 - distance))
+            score = cosine_distance_to_similarity(distance)
             current = best_by_template.get(template_id)
             match = TemplateMatch(
                 template_id=template_id,

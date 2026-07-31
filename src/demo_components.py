@@ -84,8 +84,22 @@ class DemoTemplateRetriever:
     def search(self, redacted_text: str) -> TemplateMatch | None:
         self.call_count += 1
         text = redacted_text.lower()
-        if not any(word in text for word in ("пароль", "письмо", "подпис", "войти")):
+        if not any(word in text for word in ("пароль", "письмо", "подпис", "войти", "блокиров", "вход")):
             return None
+        if "блокиров" in text or "вход" in text:
+            return TemplateMatch(
+                template_id="tpl-login-temporary-lock",
+                title="Временная блокировка входа",
+                answer=(
+                    "Если вход временно заблокирован, подождите 15 минут, "
+                    "запросите новый код или ссылку восстановления и попробуйте снова."
+                ),
+                score=0.4 if self.low_score else 0.9,
+                margin=0.2,
+                auto_reply_allowed=True,
+                risk="low",
+                is_active=True,
+            )
         return TemplateMatch(
             template_id="tpl-password-reset",
             title="Восстановление пароля",

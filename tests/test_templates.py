@@ -78,3 +78,32 @@ def test_low_template_score_does_not_allow_template_response() -> None:
 
     assert match is not None
     assert match.score < 0.8
+
+
+def test_login_lock_template_found_by_close_example() -> None:
+    retriever = TemplateRetriever(
+        FakeTemplateCollection(
+            [
+                {
+                    "id": "tpl-login-temporary-lock::1",
+                    "document": "блокировка входа",
+                    "metadata": {
+                        "template_id": "tpl-login-temporary-lock",
+                        "title": "Временная блокировка входа",
+                        "answer": "Подождите 15 минут и попробуйте снова.",
+                        "auto_reply_allowed": True,
+                        "risk": "low",
+                        "is_active": True,
+                    },
+                    "keywords": ["блокировка", "входа"],
+                }
+            ]
+        ),
+        Settings(template_score_threshold=0.5, template_margin_threshold=0.0),
+    )
+
+    match = retriever.search("У меня блокировка входа")
+
+    assert match is not None
+    assert match.template_id == "tpl-login-temporary-lock"
+    assert match.is_allowed

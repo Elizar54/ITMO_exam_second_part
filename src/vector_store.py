@@ -13,6 +13,8 @@ from src.config import Settings, settings
 KNOWLEDGE_COLLECTION = "support_knowledge_base"
 TEMPLATE_COLLECTION = "support_templates"
 SCOPE_COLLECTION = "support_service_scope"
+CHROMA_DISTANCE_SPACE = "cosine"
+CHROMA_COLLECTION_METADATA = {"hnsw:space": CHROMA_DISTANCE_SPACE}
 
 
 class MultilingualSentenceTransformerEmbeddingFunction:
@@ -47,16 +49,31 @@ def get_or_create_collections(
         KNOWLEDGE_COLLECTION: client.get_or_create_collection(
             name=KNOWLEDGE_COLLECTION,
             embedding_function=embedding_function,
+            metadata=CHROMA_COLLECTION_METADATA,
         ),
         TEMPLATE_COLLECTION: client.get_or_create_collection(
             name=TEMPLATE_COLLECTION,
             embedding_function=embedding_function,
+            metadata=CHROMA_COLLECTION_METADATA,
         ),
         SCOPE_COLLECTION: client.get_or_create_collection(
             name=SCOPE_COLLECTION,
             embedding_function=embedding_function,
+            metadata=CHROMA_COLLECTION_METADATA,
         ),
     }
+
+
+def cosine_distance_to_similarity(distance: float) -> float:
+    """Convert Chroma cosine distance to a bounded similarity score.
+
+    Chroma returns cosine distance for collections created with
+    metadata={"hnsw:space": "cosine"}. For that space, distance is 0 for
+    identical vectors and grows as vectors diverge, so 1 - distance is the
+    natural similarity scale used by retrieval thresholds.
+    """
+
+    return max(0.0, min(1.0, 1.0 - distance))
 
 
 def load_json(path: Path) -> Any:

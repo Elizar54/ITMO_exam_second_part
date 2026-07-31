@@ -7,11 +7,7 @@ from typing import Any
 from src.config import Settings, settings
 from src.exceptions import RetrievalUnavailableError
 from src.schemas import RetrievalResult, RetrievedChunk
-from src.vector_store import iter_query_rows
-
-
-def distance_to_similarity(distance: float) -> float:
-    return max(0.0, min(1.0, 1.0 - distance))
+from src.vector_store import cosine_distance_to_similarity, iter_query_rows
 
 
 class KnowledgeRetriever:
@@ -33,7 +29,7 @@ class KnowledgeRetriever:
         for row_id, document, metadata, distance in iter_query_rows(raw_result):
             if not metadata.get("is_active", False):
                 continue
-            score = distance_to_similarity(distance)
+            score = cosine_distance_to_similarity(distance)
             candidates.append(
                 RetrievedChunk(
                     chunk_id=str(metadata.get("document_id") or row_id),

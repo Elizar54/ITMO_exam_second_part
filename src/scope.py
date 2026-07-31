@@ -6,7 +6,7 @@ from typing import Any
 
 from src.config import Settings, settings
 from src.schemas import ScopeResult, ScopeStatus
-from src.vector_store import iter_query_rows
+from src.vector_store import cosine_distance_to_similarity, iter_query_rows
 
 
 class ScopeGate:
@@ -26,7 +26,7 @@ class ScopeGate:
         for _, _, metadata, distance in iter_query_rows(raw_result):
             if not metadata.get("is_active", False):
                 continue
-            score = max(0.0, min(1.0, 1.0 - distance))
+            score = cosine_distance_to_similarity(distance)
             if metadata.get("label") == "positive":
                 positive_score = max(positive_score, score)
             if metadata.get("label") == "negative":

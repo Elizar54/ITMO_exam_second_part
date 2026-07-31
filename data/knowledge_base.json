@@ -99,6 +99,240 @@
     "is_active": true
   },
   {
+    "document_id": "kb-login-2fa-code-not-working",
+    "title": "Код двухфакторной проверки не подходит",
+    "topic": "login",
+    "text": "Если код двухфакторной проверки не подходит, запросите новый код, проверьте время на устройстве и используйте последний полученный код.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-login-device-limit",
+    "title": "Лимит устройств",
+    "topic": "login",
+    "text": "При достижении лимита устройств выйдите из аккаунта на старом устройстве или удалите неиспользуемое устройство в настройках безопасности.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-account-locked-temporary",
+    "title": "Временная блокировка входа",
+    "topic": "login",
+    "text": "После нескольких неудачных попыток вход может быть временно ограничен. Подождите 15 минут и попробуйте снова восстановить доступ.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-profile-name-change",
+    "title": "Изменение имени в профиле",
+    "topic": "profile",
+    "text": "Имя в профиле можно изменить в настройках аккаунта. Изменение отображается в приложении после сохранения профиля.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-profile-language",
+    "title": "Изменение языка интерфейса",
+    "topic": "settings",
+    "text": "Язык интерфейса меняется в настройках приложения. После выбора языка перезапустите приложение, если интерфейс обновился не полностью.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-notification-email-frequency",
+    "title": "Частота email-уведомлений",
+    "topic": "settings",
+    "text": "Частоту email-уведомлений можно настроить в разделе уведомлений: сразу, раз в день или только важные сообщения.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-push-notifications-not-working",
+    "title": "Push-уведомления не приходят",
+    "topic": "settings",
+    "text": "Если push-уведомления не приходят, проверьте разрешения уведомлений в системе, режим энергосбережения и настройки уведомлений в приложении.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-subscription-plan-change",
+    "title": "Смена тарифа подписки",
+    "topic": "billing",
+    "text": "Тариф подписки можно изменить в разделе оплаты. Новый тариф применяется сразу или со следующего расчетного периода в зависимости от условий.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-subscription-renewal-date",
+    "title": "Дата продления подписки",
+    "topic": "billing",
+    "text": "Дата следующего продления отображается в разделе подписки рядом с текущим тарифом и способом оплаты.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-payment-receipt",
+    "title": "Квитанция или чек по оплате",
+    "topic": "billing",
+    "text": "Чек по оплате доступен в истории платежей. Если чек не появился, обновите страницу истории через несколько минут.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-payment-method-change",
+    "title": "Изменение способа оплаты",
+    "topic": "billing",
+    "text": "Способ оплаты меняется в разделе платежных настроек. После добавления нового способа оплаты можно удалить старый.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-payment-pending",
+    "title": "Платеж в обработке",
+    "topic": "billing",
+    "text": "Статус платежа в обработке означает, что банк или платежный провайдер еще не подтвердил операцию. Обычно статус обновляется автоматически.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-refund-policy-general",
+    "title": "Общие условия возврата",
+    "topic": "billing",
+    "text": "Запрос на возврат рассматривается оператором поддержки. В обращении укажите безопасное описание платежа без полного номера карты.",
+    "auto_reply_allowed": false,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-app-update-required",
+    "title": "Требуется обновление приложения",
+    "topic": "app",
+    "text": "Если приложение просит обновление, установите последнюю версию из официального магазина и повторите вход.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-app-login-loop",
+    "title": "Цикл входа в приложение",
+    "topic": "app",
+    "text": "Если приложение возвращает на экран входа после авторизации, очистите кеш, обновите приложение и проверьте корректность даты и времени.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-app-slow-performance",
+    "title": "Приложение работает медленно",
+    "topic": "app",
+    "text": "При медленной работе приложения закройте лишние фоновые приложения, очистите кеш и проверьте стабильность интернет-соединения.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-app-file-upload-error",
+    "title": "Ошибка загрузки файла",
+    "topic": "app",
+    "text": "Если файл не загружается, проверьте размер файла, формат, доступ к интернету и повторите загрузку позже.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-data-export-request",
+    "title": "Экспорт данных аккаунта",
+    "topic": "privacy",
+    "text": "Экспорт данных аккаунта можно запросить в настройках приватности. Подготовка архива может занять некоторое время.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-privacy-delete-request",
+    "title": "Запрос на удаление данных",
+    "topic": "privacy",
+    "text": "Запросы на удаление данных требуют проверки оператором. Не отправляйте пароли, коды или полные номера карт в обращении.",
+    "auto_reply_allowed": false,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-security-password-change",
+    "title": "Смена пароля из настроек",
+    "topic": "security",
+    "text": "Если доступ к аккаунту есть, пароль можно сменить в настройках безопасности после подтверждения текущей сессии.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-security-active-sessions",
+    "title": "Просмотр активных сессий",
+    "topic": "security",
+    "text": "Активные сессии отображаются в настройках безопасности. Незнакомые сессии можно завершить и затем сменить пароль.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-security-suspicious-login",
+    "title": "Подозрительный вход",
+    "topic": "security",
+    "text": "При подозрительном входе завершите неизвестные сессии, смените пароль и передайте обращение оператору для проверки безопасности.",
+    "auto_reply_allowed": false,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-service-maintenance",
+    "title": "Плановые работы",
+    "topic": "status",
+    "text": "Во время плановых работ часть функций может быть временно недоступна. Актуальные сроки указываются на странице статуса сервиса.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-service-region-availability",
+    "title": "Доступность сервиса по регионам",
+    "topic": "status",
+    "text": "Если сервис недоступен в регионе, проверьте страницу статуса и настройки сети. При массовом сбое обновления публикуются отдельно.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-operator-working-hours",
+    "title": "Время ответа оператора",
+    "topic": "operator",
+    "text": "Оператор отвечает в порядке очереди. Время ответа зависит от нагрузки и сложности проверки обращения.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
+    "document_id": "kb-operator-safe-details",
+    "title": "Какие данные можно передать оператору",
+    "topic": "operator",
+    "text": "Оператору можно передать номер заявки, дату события и безопасное описание проблемы. Пароли, OTP и полные номера карт передавать нельзя.",
+    "auto_reply_allowed": true,
+    "version": "1.0",
+    "is_active": true
+  },
+  {
     "document_id": "kb-old-login-flow",
     "title": "Старый вход",
     "topic": "login",
