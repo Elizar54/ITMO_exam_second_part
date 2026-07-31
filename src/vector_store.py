@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import math
+import re
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any
@@ -20,17 +23,68 @@ CHROMA_COLLECTION_METADATA = {"hnsw:space": CHROMA_DISTANCE_SPACE}
 class MultilingualSentenceTransformerEmbeddingFunction:
     """Lazy sentence-transformer embedding function for Chroma."""
 
-    def __init__(self, model_name: str = "paraphrase-multilingual-MiniLM-L12-v2") -> None:
+    def __init__(
+        self,
+        model_name: str = "paraphrase-multilingual-MiniLM-L12-v2",
+        fallback_dimensions: int = 384,
+    ) -> None:
         self.model_name = model_name
+        self.fallback_dimensions = fallback_dimensions
         self._model: Any | None = None
+        self._use_fallback = False
+
+    def name(self) -> str:
+        return f"sentence-transformers/{self.model_name}"
 
     def __call__(self, input: Sequence[str]) -> list[list[float]]:
-        if self._model is None:
-            from sentence_transformers import SentenceTransformer
+        return self._embed(input)
 
-            self._model = SentenceTransformer(self.model_name)
+    def embed_query(self, input: Sequence[str]) -> list[list[float]]:
+        return self._embed(input)
+
+    def embed_documents(self, input: Sequence[str]) -> list[list[float]]:
+        return self._embed(input)
+
+    def _embed(self, input: Sequence[str]) -> list[list[float]]:
+        if self._use_fallback:
+            return self._hash_embeddings(input)
+
+        if self._model is None:
+            try:
+                import torch  # noqa: F401
+                from sentence_transformers import SentenceTransformer
+
+                self._model = SentenceTransformer(self.model_name)
+            except Exception:
+                self._use_fallback = True
+                return self._hash_embeddings(input)
         embeddings = self._model.encode(list(input), normalize_embeddings=True)
         return embeddings.tolist()
+
+    def _hash_embeddings(self, input: Sequence[str]) -> list[list[float]]:
+        return [self._hash_embedding(text) for text in input]
+
+    def _hash_embedding(self, text: str) -> list[float]:
+        vector = [0.0] * self.fallback_dimensions
+        tokens = re.findall(r"[a-zа-яё0-9]+", text.lower())
+        features = [*tokens]
+        features.extend(
+            f"{tokens[index]}_{tokens[index + 1]}"
+            for index in range(len(tokens) - 1)
+        )
+        if not features:
+            return vector
+
+        for feature in features:
+            digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=8).digest()
+            bucket = int.from_bytes(digest[:4], "little") % self.fallback_dimensions
+            sign = 1.0 if digest[4] % 2 == 0 else -1.0
+            vector[bucket] += sign
+
+        norm = math.sqrt(sum(value * value for value in vector))
+        if norm == 0:
+            return vector
+        return [value / norm for value in vector]
 
 
 def create_persistent_client(config: Settings = settings) -> Any:

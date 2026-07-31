@@ -11,8 +11,9 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - import smoke without optional UI dependency
     st = None
 
+from src.app_factory import build_app_pipeline, build_runtime_collections
 from src.config import Settings
-from src.demo_components import DEMO_MODES, build_demo_pipeline
+from src.demo_components import DEMO_MODES
 from src.schemas import (
     AuditStorage,
     DecisionAction,
@@ -24,8 +25,8 @@ from src.schemas import (
 from src.storage import AuditRepository
 
 
-def create_pipeline(mode_label: str, config: Settings):
-    return build_demo_pipeline(mode_label, config)
+def create_pipeline(mode_label: str, config: Settings, collections):
+    return build_app_pipeline(mode_label, config, collections)
 
 
 if st is not None:
@@ -34,10 +35,17 @@ if st is not None:
     def get_config() -> Settings:
         return Settings()
 
+    @st.cache_resource
+    def get_collections(_config: Settings):
+        return build_runtime_collections(_config)
+
 else:
 
     def get_config() -> Settings:
         return Settings()
+
+    def get_collections(config: Settings):
+        return build_runtime_collections(config)
 
 
 def load_demo_tickets() -> list[dict[str, str]]:
@@ -137,7 +145,14 @@ def main() -> None:
         st.session_state.had_uncertain_without_context = False
 
     config = get_config()
+    collections = get_collections(config)
     mode = st.sidebar.selectbox("Demo mode", list(DEMO_MODES))
+    st.sidebar.caption(
+        f"retrieval={config.retrieval_score_threshold}, "
+        f"template={config.template_score_threshold}, "
+        f"scope+={config.scope_positive_threshold}, "
+        f"scope-={config.scope_negative_threshold}"
+    )
     tickets = load_demo_tickets()
     selected_ticket = st.sidebar.selectbox(
         "Demo ticket",
@@ -160,7 +175,7 @@ def main() -> None:
         with st.chat_message("user"):
             st.write(user_text)
 
-        pipeline = create_pipeline(mode, config)
+        pipeline = create_pipeline(mode, config, collections)
         decision = pipeline.process(TicketInput(session_id="streamlit-session", channel="web", text=user_text))
 
         if (

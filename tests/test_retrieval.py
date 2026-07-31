@@ -100,3 +100,48 @@ def test_low_kb_score_does_not_mean_out_of_scope() -> None:
 
     assert result.chunks == []
     assert result.unavailable is False
+
+
+def test_lexical_fallback_finds_kb_document_when_vector_score_is_low(tmp_path) -> None:
+    kb_path = tmp_path / "knowledge_base.json"
+    kb_path.write_text(
+        """
+        [
+          {
+            "document_id": "kb-account-locked-temporary",
+            "title": "Временная блокировка входа",
+            "topic": "login",
+            "text": "После нескольких неудачных попыток вход может быть временно ограничен.",
+            "auto_reply_allowed": true,
+            "version": "1.0",
+            "is_active": true
+          }
+        ]
+        """,
+        encoding="utf-8",
+    )
+    retriever = KnowledgeRetriever(
+        FakeCollection(
+            [
+                {
+                    "id": "kb-unrelated",
+                    "document": "Нерелевантный документ",
+                    "metadata": {
+                        "document_id": "kb-unrelated",
+                        "title": "Другое",
+                        "is_active": True,
+                    },
+                    "keywords": ["совсем", "другое"],
+                }
+            ]
+        ),
+        Settings(retrieval_score_threshold=0.3, retrieval_margin_threshold=0.03),
+        data_path=kb_path,
+    )
+
+    result = retriever.search("У меня блокировка входа")
+
+    assert result.chunks
+    assert result.chunks[0].chunk_id == "kb-account-locked-temporary"
+    assert result.top_score is not None
+    assert result.top_score >= 0.6
